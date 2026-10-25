@@ -20,7 +20,7 @@ const mono = localFont({ src: "./fonts/dmmono-500.woff2", weight: "500", variabl
 
 export const metadata: Metadata = {
   title: { default: "Jinx · drop a dare, shake the jar", template: "%s · Jinx" },
-  description: "A party game for friends: everyone drops secret dares into a shared jar, then the jar picks one and who has to do it.",
+  description: "A party game for friends: everyone drops secret dares into a shared jar, then shake the jar to get a random one.",
   referrer: "no-referrer",
 };
 

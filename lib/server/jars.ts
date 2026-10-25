@@ -45,8 +45,8 @@ const K = {
 
 /** Points a finished dare is worth to the player who got it. */
 const pointsFor = (o: Draw["outcome"]) => (o === "done" ? POINTS.done : o === "chicken" ? POINTS.chicken : 0);
-/** Where a slip ends up after each outcome. */
-const slipAfter: Record<Outcome, Dare["status"]> = { done: "done", chicken: "in_jar", veto: "vetoed" };
+/** Where a slip ends up after each outcome: back in the jar unless it was vetoed. */
+const slipAfter: Record<Outcome, Dare["status"]> = { done: "in_jar", chicken: "in_jar", veto: "vetoed" };
 
 function cleanName(v: unknown) {
   const name = str(v, LIMITS.nameMax);
@@ -344,36 +344,25 @@ export const deleteDare = (code: string, dh: string | null, body: Record<string,
 
 // ---------- the draw ----------
 
-/** Picks the victim (fewest turns so far, ties random) and a random eligible slip. Server-side only. */
-function drawOnce(jar: JarDoc, drawnBy: Player) {
+/** Picks a random eligible slip for whoever shook the jar. Server-side only, so nobody can rig it. */
+function drawOnce(jar: JarDoc, drawnBy: Player, victimId: string = drawnBy.id) {
   if (jar.draws.some((d) => d.outcome === "pending"))
     throw new HttpError(409, "Someone's dare is still open. Finish it first.");
 
-  const turns = new Map<string, number>();
-  for (const d of jar.draws)
-    if (d.outcome !== "redraw" && d.victimId) turns.set(d.victimId, (turns.get(d.victimId) ?? 0) + 1);
-  const order = jar.players
-    .map((p) => ({ p, k: (turns.get(p.id) ?? 0) * 1000 + randomInt(1000) }))
-    .sort((a, b) => a.k - b.k)
-    .map((x) => x.p);
-
   const allowed = jar.dares.filter((d) => d.status === "in_jar");
   if (!allowed.length) throw new HttpError(409, "The jar is empty. Write a few slips first!");
+  const eligible = jar.noOwnDares ? allowed.filter((d) => d.authorId !== victimId) : allowed;
+  if (!eligible.length) throw new HttpError(409, "Only your own slips are left. Get your friends to add some!");
 
-  for (const victim of order) {
-    const eligible = jar.noOwnDares ? allowed.filter((d) => d.authorId !== victim.id) : allowed;
-    if (!eligible.length) continue;
-    const dare = eligible[randomInt(eligible.length)];
-    dare.status = "drawn";
-    dare.timesDrawn++;
-    const draw: Draw = {
-      id: newId(), dareId: dare.id, victimId: victim.id, drawnBy: drawnBy.id,
-      outcome: "pending", vetoVotes: [], createdAt: Date.now(), resolvedAt: null,
-    };
-    jar.draws.push(draw);
-    return draw.id;
-  }
-  throw new HttpError(409, "Only your own slips are left. Get your friends to add some!");
+  const dare = eligible[randomInt(eligible.length)];
+  dare.status = "drawn";
+  dare.timesDrawn++;
+  const draw: Draw = {
+    id: newId(), dareId: dare.id, victimId, drawnBy: drawnBy.id,
+    outcome: "pending", vetoVotes: [], createdAt: Date.now(), resolvedAt: null,
+  };
+  jar.draws.push(draw);
+  return draw.id;
 }
 
 export const shake = (code: string, dh: string | null) =>
@@ -415,7 +404,8 @@ export const resolveDraw = (code: string, dh: string | null, body: Record<string
           throw new HttpError(403, "Only the host or the player on the spot can redraw.");
         settle("redraw", "in_jar");
         try {
-          return { redrawn: drawOnce(jar, me) };
+          // Same player stays on the spot, just with a different slip.
+          return { redrawn: drawOnce(jar, me, draw.victimId ?? me.id) };
         } catch {
           return { redrawn: null };
         }

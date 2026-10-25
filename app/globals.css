@@ -33,6 +33,9 @@
   --heading: #5b2a5e;
   --heading-font: var(--font-display);
   --heading-tracking: -0.01em;
+  --display-scale: 0.74;
+  --wave-line: transparent;
+  --wave-glow: none;
 
   --create-bg: #ffb38a;
   --create-ink: #4a1f2b;
@@ -106,6 +109,12 @@
     --heading: #ff7ac0;
     --heading-font: var(--font-goth);
     --heading-tracking: 0.01em;
+  --display-scale: 1;
+  --wave-line: #ff3d9a;
+  --wave-glow: drop-shadow(0 0 6px rgba(255, 61, 154, 0.9)) drop-shadow(0 0 16px rgba(46, 230, 255, 0.45));
+    --display-scale: 1;
+    --wave-line: #ff3d9a;
+    --wave-glow: drop-shadow(0 0 6px rgba(255, 61, 154, 0.9)) drop-shadow(0 0 16px rgba(46, 230, 255, 0.45));
     --create-bg: #1a0f24;
     --create-ink: #f3e9f7;
     --create-edge: #ff3d9a;
@@ -163,6 +172,9 @@
   --heading: #ff7ac0;
   --heading-font: var(--font-goth);
   --heading-tracking: 0.01em;
+  --display-scale: 1;
+  --wave-line: #ff3d9a;
+  --wave-glow: drop-shadow(0 0 6px rgba(255, 61, 154, 0.9)) drop-shadow(0 0 16px rgba(46, 230, 255, 0.45));
   --create-bg: #1a0f24;
   --create-ink: #f3e9f7;
   --create-edge: #ff3d9a;
@@ -625,7 +637,7 @@ textarea.input {
   isolation: isolate;
 }
 .hero h1 {
-  font-size: clamp(2.3rem, 6vw, 4.2rem);
+  font-size: calc(clamp(2.3rem, 6vw, 4.2rem) * var(--display-scale));
   text-shadow: 0 4px 0 rgba(91, 42, 94, 0.25);
 }
 .hero .eyebrow {
@@ -702,7 +714,7 @@ textarea.input {
   min-height: 260px;
 }
 .create-card h2 {
-  font-size: 1.8rem;
+  font-size: calc(1.8rem * var(--display-scale) + 0.2rem);
 }
 .create-card .plus {
   display: grid;
@@ -750,7 +762,7 @@ textarea.input {
   max-width: 640px;
 }
 .section-head h2 {
-  font-size: clamp(1.9rem, 4.5vw, 2.8rem);
+  font-size: calc(clamp(1.9rem, 4.5vw, 2.8rem) * var(--display-scale));
   color: var(--heading);
 }
 
@@ -846,7 +858,10 @@ textarea.input {
 
 .night {
   position: relative;
-  background: radial-gradient(ellipse at 70% 0%, var(--night-2), var(--night) 60%);
+  /* starts exactly at the wave colour so there's no visible band under the divider */
+  background:
+    linear-gradient(to bottom, var(--night) 0, transparent 180px),
+    radial-gradient(ellipse at 70% 35%, var(--night-2), var(--night) 60%);
   color: #ffeaf2;
   overflow: hidden;
 }
@@ -902,7 +917,7 @@ textarea.input {
   padding: 80px 0 40px;
 }
 .footer-cta h2 {
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: calc(clamp(2rem, 5vw, 3rem) * var(--display-scale));
 }
 .site-footer {
   padding: 24px 0 40px;
@@ -1754,4 +1769,12 @@ textarea.input {
 }
 @keyframes glow {
   50% { opacity: 0.55; }
+}
+
+.wave-line {
+  fill: none;
+  stroke: var(--wave-line);
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+  filter: var(--wave-glow);
 }

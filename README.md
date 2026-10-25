@@ -1,6 +1,6 @@
 # Jinx - gives random dare
 
-A dare game for friends. Everyone secretly adds dares, then the jar picks a random dare and who has to do it.
+A dare game for friends. Everyone secretly adds dares, then shakes the jar to get a random one.
 
 ## How to play
 
@@ -8,17 +8,19 @@ A dare game for friends. Everyone secretly adds dares, then the jar picks a rand
 2. **Invite friends.** Share the 6-letter code or the invite link.
 3. **Join.** Friends enter the code on the home page, then pick a name and an animal avatar.
 4. **Add dares.** Type a dare and press Enter. Only you can see your dares until one is drawn.
-5. **Shake the jar.** The jar picks a random dare and a player.
+5. **Shake the jar.** Whoever shakes gets a random dare from someone else. Everyone sees it pop up.
 6. **Choose what happens.**
    - ✅ **Done it**: +2 points
-   - 🐔 **Chicken out**: −1 point, and the dare goes back in the jar
+   - 🐔 **Chicken out**: −1 point
+
+   Either way the dare goes back in the jar, so it can come up again.
    - 🚫 **Veto**: the dare is removed forever (needs two players, or the host)
    - 🔄 **Draw another**: picks a new dare (host or the chosen player only)
 
 ## Playing on a video call
 
-- Your slips are hidden by default, so sharing your screen gives nothing away. Click **Show my slips** to see them.
-- Click **Big screen** to show only the jar. The jar also fills the screen automatically while a dare is being drawn.
+- The slips you've already dropped in the jar are hidden by default, so sharing your screen gives nothing away. Click **Show my slips** to see them.
+- While a dare is on screen the jar fills the whole screen. Click **Small screen** to bring the side panel back, or **Big screen** to enlarge it anytime.
 
 ## Changing a result
 

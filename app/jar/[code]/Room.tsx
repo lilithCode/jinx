@@ -31,7 +31,8 @@ export function Room({ code }: { code: string }) {
   const [busy, setBusy] = useState(false);
   // Slips start hidden so nobody sees them if you share your screen on a call.
   const [slipsHidden, setSlipsHidden] = useState(true);
-  const [bigScreen, setBigScreen] = useState(false);
+  // "auto" = big only while a dare is on screen; the button overrides it until the next draw.
+  const [screen, setScreen] = useState<"auto" | "big" | "small">("auto");
   const floaterId = useRef(0);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const namesRef = useRef(new Map<string, string>());
@@ -47,6 +48,7 @@ export function Room({ code }: { code: string }) {
       setAnimateId(id);
       setTab("jar");
       setSlipsHidden(true);
+      setScreen("auto");
     },
     onReaction: (emoji, playerId) => {
       const id = ++floaterId.current;
@@ -84,6 +86,7 @@ export function Room({ code }: { code: string }) {
   const online = players.filter((p) => p.online).length;
   const lastDone = state.history.find((h) => h.outcome !== "redraw");
   const sideTab: Exclude<Tab, "jar"> = tab === "jar" ? "slips" : tab;
+  const big = screen === "big" || (screen === "auto" && !!draw);
 
   const doShake = async () => {
     setShaking(true);
@@ -148,15 +151,15 @@ export function Room({ code }: { code: string }) {
         </button>
       </header>
 
-      <main className="wrap room-body" data-tab={tab} data-focus={bigScreen || !!draw}>
+      <main className="wrap room-body" data-tab={tab} data-focus={big}>
         <section className="stage" aria-label="The jar">
           <button
             className="stage-toggle"
-            onClick={() => setBigScreen(!bigScreen)}
-            aria-pressed={bigScreen}
-            title={bigScreen ? "Show the side panel" : "Big screen: only the jar is shown"}
+            onClick={() => setScreen(big ? "small" : "big")}
+            aria-pressed={big}
+            title={big ? "Show the side panel again" : "Big screen: only the jar is shown"}
           >
-            {bigScreen ? "⤡ Small" : "⤢ Big screen"}
+            {big ? "⤡ Small screen" : "⤢ Big screen"}
           </button>
           {jar.ended ? (
             <Recap state={state} />
@@ -181,7 +184,7 @@ export function Room({ code }: { code: string }) {
                 </h2>
                 <p style={{ opacity: 0.9, marginTop: 6 }}>
                   {slipCount
-                    ? "Anyone can shake. The jar picks the dare and who does it."
+                    ? "Shake the jar and you get a random dare from your friends."
                     : "Everyone drops a few dares in first. Nobody else can read them."}
                 </p>
               </div>

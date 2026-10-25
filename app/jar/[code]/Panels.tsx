@@ -80,7 +80,7 @@ export function SlipsPanel({ state, toast, hidden, setHidden }: SlipsProps) {
           <textarea
             id="dare-text"
             ref={box}
-            className={`input${hidden ? " masked" : ""}`}
+            className="input"
             rows={3}
             maxLength={LIMITS.dareMax}
             placeholder="Dare someone to… (Enter drops it in)"

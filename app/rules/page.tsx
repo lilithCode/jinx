@@ -9,9 +9,17 @@ export default function RulesPage() {
     <>
       <SiteHeader />
       <main className="wrap prose">
-        <p className="eyebrow">The small print, but friendly</p>
+        <p className="eyebrow">Read this before you get jinxed</p>
         <h1>House rules</h1>
-        <p>Jinx is for laughing with your friends, not at them. Before you write a slip:</p>
+        <p>
+          Jinx is for the unlucky ones. You shake the jar, a slip falls out, and congrats, you&rsquo;re jinxed 🫠.
+          Do the dare or chicken out. No in-between.
+        </p>
+        <p>
+          At the end of the month we check the receipts 🧾: who was brave enough to take the most dares, and who
+          was a certified chicken 🐔. The scoreboard never lies, bestie.
+        </p>
+        <p>Keep it fun, not cursed. Before you write a slip:</p>
         <ul>
           <li>No dares that could hurt someone, break the law, or cost money someone doesn&rsquo;t want to spend.</li>
           <li>No dares about someone&rsquo;s body, private messages, or secrets they haven&rsquo;t chosen to share.</li>

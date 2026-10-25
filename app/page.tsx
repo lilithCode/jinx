@@ -40,7 +40,7 @@ export default function Home() {
               <p className="eyebrow">A party game for friends who can&rsquo;t say no</p>
               <h1>Drop a dare.<br />Shake the jar.</h1>
               <p className="hero-lead">
-                Everyone slips secret dares into one shared jar. The jar picks the dare <em>and</em> who has to do it.
+                Everyone slips secret dares into one shared jar. Shake it, and it hands <em>you</em> a random dare.
               </p>
               <JoinBox />
             </div>
@@ -89,7 +89,7 @@ export default function Home() {
             <li className="step">
               <span className="num">3</span>
               <h3>Shake it</h3>
-              <p>The jar rattles on every screen, picks a victim and a dare. Do it, chicken out, or veto it.</p>
+              <p>Whoever shakes gets a random dare, and everyone watches it appear. Do it, chicken out, or veto it.</p>
               <span className="art" aria-hidden="true">🎲</span>
             </li>
           </ol>
@@ -110,8 +110,9 @@ export default function Home() {
           </div>
         </section>
 
-        <svg className="wave" viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true" style={{ color: "var(--night)", marginBottom: -1 }}>
+        <svg className="wave" viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true" style={{ color: "var(--night)", marginBottom: -1, overflow: "visible" }}>
           <path d="M0 40 C 240 0, 480 70, 720 36 S 1200 0, 1440 34 V70 H0 Z" fill="currentColor" />
+          <path className="wave-line" d="M0 40 C 240 0, 480 70, 720 36 S 1200 0, 1440 34" />
         </svg>
         <section className="night" aria-labelledby="sealed-title">
           <div className="wrap section night-grid">
