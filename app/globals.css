@@ -270,7 +270,8 @@ select {
 }
 
 .wrap {
-  width: min(1180px, 100% - 32px);
+  /* fills wide screens edge to edge, with a breathing gutter */
+  width: min(1760px, 100% - clamp(32px, 6vw, 112px));
   margin-inline: auto;
 }
 
@@ -607,8 +608,8 @@ textarea.input {
 
 .hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 22px;
+  grid-template-columns: minmax(0, 1fr) clamp(300px, 24vw, 440px);
+  gap: clamp(18px, 1.6vw, 28px);
   align-items: stretch;
   margin-top: 8px;
 }
@@ -627,8 +628,9 @@ textarea.input {
     linear-gradient(135deg, var(--hero-a), var(--hero-b));
   border: 1px solid var(--stage-border);
   color: #fff;
-  padding: clamp(28px, 5vw, 56px);
-  min-height: 460px;
+  padding: clamp(28px, 5vw, 80px);
+  /* fill the first screen on desktop */
+  min-height: clamp(460px, calc(100svh - 120px), 900px);
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
   gap: 16px;
@@ -637,7 +639,7 @@ textarea.input {
   isolation: isolate;
 }
 .hero h1 {
-  font-size: calc(clamp(2.3rem, 6vw, 4.2rem) * var(--display-scale));
+  font-size: calc(clamp(2.3rem, 5.4vw, 6.6rem) * var(--display-scale));
   text-shadow: 0 4px 0 rgba(91, 42, 94, 0.25);
 }
 .hero .eyebrow {
@@ -646,14 +648,14 @@ textarea.input {
 }
 .hero-lead {
   margin: 14px 0 26px;
-  font-size: 1.08rem;
-  max-width: 34ch;
+  font-size: clamp(1.08rem, 1.15vw, 1.4rem);
+  max-width: 38ch;
   opacity: 0.95;
 }
 .hero-jar {
   position: relative;
   justify-self: center;
-  width: min(300px, 100%);
+  width: min(clamp(300px, 26vw, 500px), 100%);
 }
 
 @media (max-width: 720px) {
@@ -694,7 +696,7 @@ textarea.input {
   box-shadow: 0 10px 0 rgba(58, 23, 61, 0.18);
   display: grid;
   gap: 14px;
-  max-width: 460px;
+  max-width: clamp(460px, 32vw, 560px);
 }
 .join-card h2 {
   font-size: 1.25rem;
