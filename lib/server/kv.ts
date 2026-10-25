@@ -120,9 +120,18 @@ class MemoryKV implements KV {
 type G = typeof globalThis & { __jinxKv?: KV };
 const g = globalThis as G;
 
+/** Finds an env var by suffix, so Vercel's custom prefixes (e.g. STORAGE_KV_REST_API_URL) work too. */
+function env(...suffixes: string[]) {
+  for (const s of suffixes) {
+    if (process.env[s]) return process.env[s];
+    const key = Object.keys(process.env).find((k) => k.endsWith(`_${s}`) && process.env[k]);
+    if (key) return process.env[key];
+  }
+}
+
 function create(): KV {
-  const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = env("KV_REST_API_URL", "UPSTASH_REDIS_REST_URL");
+  const token = env("KV_REST_API_TOKEN", "UPSTASH_REDIS_REST_TOKEN");
   if (url && token) return new UpstashKV(new Redis({ url, token }));
   if (process.env.VERCEL) {
     throw new Error(

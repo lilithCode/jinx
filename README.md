@@ -2,6 +2,8 @@
 
 A dare game for friends. Everyone secretly adds dares, then shakes the jar to get a random one.
 
+![Jinx home page](app/public/readmePics/image.png)
+
 ## How to play
 
 1. **Create a jar.** Click **New jar**, give it a name and a sticker, choose how many players (2–30), and set the rules.
