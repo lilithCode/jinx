@@ -90,7 +90,7 @@ export function JoinFlow({ code: rawCode }: { code: string }) {
       className="flow-card"
       onSubmit={(e) => {
         e.preventDefault();
-        if (!busy && !blocked) join();
+        if (!busy && name.trim()) join();
       }}
     >
       <div>
@@ -107,15 +107,15 @@ export function JoinFlow({ code: rawCode }: { code: string }) {
         </div>
       </div>
 
-      {blocked ? (
-        <>
-          <p className="error" role="alert">{blocked} Ask the host to {jar.ended ? "start a new jar" : "make room"}.</p>
-          <Link href="/" className="btn btn--ghost">Back home</Link>
-        </>
-      ) : (
-        <>
+      {blocked && (
+        <p className="hint" role="status">
+          {blocked} <b>Already in this jar on another browser?</b> Type the same name you used to sign in here
+          too. Your other browser stays signed in.
+        </p>
+      )}
+      <>
           <label className="field">
-            <span>Your name</span>
+            <span>{blocked ? "The name you joined with" : "Your name"}</span>
             <input
               className="input"
               value={name}
@@ -125,10 +125,13 @@ export function JoinFlow({ code: rawCode }: { code: string }) {
               autoFocus
             />
           </label>
-          <div className="field">
-            <span>Your avatar</span>
-            <AvatarPicker value={avatar} onChange={setAvatar} taken={jar.takenAvatars} />
-          </div>
+          {!blocked && (
+            <div className="field">
+              <span>Your avatar</span>
+              <AvatarPicker value={avatar} onChange={setAvatar} taken={jar.takenAvatars} />
+              <p className="hint">Joined before on another browser? Use the same name to sign in here too.</p>
+            </div>
+          )}
           {jar.needsPassword && (
             <label className="field">
               <span>Jar password</span>
@@ -147,10 +150,10 @@ export function JoinFlow({ code: rawCode }: { code: string }) {
             className="btn btn--primary btn--big btn--block"
             disabled={busy || !name.trim() || (jar.needsPassword && !password)}
           >
-            {busy ? "Joining…" : "Join the jar"}
+            {busy ? "Joining…" : blocked ? "Sign in to my seat" : "Join the jar"}
           </button>
-        </>
-      )}
+          {blocked && <Link href="/" className="btn btn--ghost btn--block">Back home</Link>}
+      </>
     </form>
   );
 }

@@ -12,7 +12,12 @@ import type { DrawView, JarState } from "../types";
 type Player = {
   id: string; deviceHash: string; name: string; avatar: string; color: string;
   role: "host" | "player"; score: number; joinedAt: number;
+  /** Extra browsers/phones signed in to this seat (older jars don't have it). */
+  devices?: string[];
 };
+
+/** True if this browser is signed in to the seat, on its first device or any added later. */
+const onSeat = (p: Player, dh: string) => p.deviceHash === dh || !!p.devices?.includes(dh);
 type Dare = {
   id: string; authorId: string | null; text: string;
   status: "in_jar" | "drawn" | "done" | "vetoed"; timesDrawn: number; createdAt: number;
@@ -31,6 +36,7 @@ export type JarDoc = {
 
 const MAX_DRAWS_KEPT = 300;
 const ONLINE_MS = 15_000;
+const MAX_DEVICES = 10; // browsers signed in to one seat
 
 const K = {
   jar: (id: string) => `jar:${id}`,
@@ -104,7 +110,7 @@ async function mutate<T>(id: string, fn: (doc: JarDoc) => T | Promise<T>): Promi
 }
 
 function findMember(doc: JarDoc, dh: string | null) {
-  const me = dh ? doc.players.find((p) => p.deviceHash === dh) : undefined;
+  const me = dh ? doc.players.find((p) => onSeat(p, dh)) : undefined;
   if (!me) {
     if (dh && doc.kicked.includes(dh)) throw new HttpError(403, "The host removed you from this jar.", { removed: true });
     throw new HttpError(403, "You haven't joined this jar yet.", { needsJoin: true });
@@ -119,7 +125,7 @@ async function resolveJarId(code: string, dh: string | null): Promise<string> {
   const movedId = await kv().get<string>(K.moved(normalizeCode(code)));
   if (movedId) {
     const doc = await load(movedId);
-    if (doc && dh && doc.players.some((p) => p.deviceHash === dh))
+    if (doc && dh && doc.players.some((p) => onSeat(p, dh)))
       throw new HttpError(409, "This jar has a new code.", { movedTo: doc.code });
   }
   throw new HttpError(404, "This jar doesn't exist. The host may have deleted it.");
@@ -191,7 +197,7 @@ export async function peekJar(code: string, dh: string | null) {
     needsPassword: !!jar.passwordHash,
     locked: jar.locked,
     ended: jar.status === "ended",
-    member: !!dh && jar.players.some((p) => p.deviceHash === dh),
+    member: !!dh && jar.players.some((p) => onSeat(p, dh)),
     takenAvatars: jar.players.map((p) => p.avatar),
   };
 }
@@ -200,19 +206,26 @@ export async function joinJar(code: string, dh: string, body: Record<string, unk
   const id = await idForCode(code);
   if (!id) throw new HttpError(404, "No jar has that code. Check the letters and try again.");
   return mutate(id, (jar) => {
-    if (jar.players.some((p) => p.deviceHash === dh)) return { code: jar.code }; // already seated
+    if (jar.players.some((p) => onSeat(p, dh))) return { code: jar.code }; // already seated
     if (jar.kicked.includes(dh)) throw new HttpError(403, "The host removed you from this jar.");
-    if (jar.status === "ended") throw new HttpError(409, "This game has already ended.");
-    if (jar.locked) throw new HttpError(423, "The host has locked this jar.");
     if (jar.passwordHash) {
       const pw = typeof body.password === "string" ? body.password.slice(0, LIMITS.passwordMax) : "";
       if (!pw || !checkPassword(pw, jar.passwordHash))
         throw new HttpError(401, "That jar password is wrong.", { badPassword: true });
     }
-    if (jar.players.length >= jar.maxPlayers) throw new HttpError(409, "Every seat in this jar is taken.");
     const name = cleanName(body.name);
-    if (jar.players.some((p) => p.name.toLowerCase() === name.toLowerCase()))
-      throw new HttpError(409, `Someone in this jar is already called ${name}. Try another name.`);
+
+    // Same name as an existing seat = that player signing in on another browser or phone.
+    // Every signed-in browser keeps the seat. Works even when the jar is full, locked or ended.
+    const seat = jar.players.find((p) => p.name.toLowerCase() === name.toLowerCase());
+    if (seat) {
+      seat.devices = [...(seat.devices ?? []).filter((d) => d !== dh), dh].slice(-MAX_DEVICES);
+      return { code: jar.code, rejoined: true };
+    }
+
+    if (jar.status === "ended") throw new HttpError(409, "This game has already ended.");
+    if (jar.locked) throw new HttpError(423, "The host has locked this jar.");
+    if (jar.players.length >= jar.maxPlayers) throw new HttpError(409, "Every seat in this jar is taken.");
     const used = new Set(jar.players.map((p) => p.color));
     const color = PLAYER_COLORS.find((c) => !used.has(c)) ?? PLAYER_COLORS[jar.players.length % PLAYER_COLORS.length];
     jar.players.push({
@@ -508,7 +521,7 @@ export async function hostAction(code: string, dh: string | null, body: Record<s
         // Their unread slips leave with them; drawn ones stay in history.
         jar.dares = jar.dares.filter((d) => !(d.authorId === target.id && d.status === "in_jar"));
         jar.players = jar.players.filter((p) => p.id !== target.id);
-        jar.kicked.push(target.deviceHash);
+        jar.kicked.push(target.deviceHash, ...(target.devices ?? []));
         return {};
       }
       case "rules":

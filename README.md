@@ -8,7 +8,7 @@ A dare game for friends. Everyone secretly adds dares, then shakes the jar to ge
 
 1. **Create a jar.** Click **New jar**, give it a name and a sticker, choose how many players (2–30), and set the rules.
 2. **Invite friends.** Share the 6-letter code or the invite link.
-3. **Join.** Friends enter the code on the home page, then pick a name and an animal avatar.
+3. **Join.** Friends enter the code on the home page, then pick a name and an animal avatar. Playing on another browser or phone? Join with the same name to sign in there too. Your score and slips come with you, and your other browsers stay signed in.
 4. **Add dares.** Type a dare and press Enter. Only you can see your dares until one is drawn.
 5. **Shake the jar.** Whoever shakes gets a random dare from someone else. Everyone sees it pop up.
 6. **Choose what happens.**
