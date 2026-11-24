@@ -1293,6 +1293,7 @@ textarea.input {
 }
 .my-slip p {
   overflow-wrap: anywhere;
+  white-space: pre-line;
 }
 .my-slip .tag {
   font-size: 0.78rem;
@@ -1432,6 +1433,18 @@ textarea.input {
   line-height: 1.25;
   margin: 8px 0 14px;
   overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+.draw-card .dare-text[data-size="mid"] {
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+}
+.draw-card .dare-text[data-size="long"] {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  max-height: 46vh;
+  overflow-y: auto;
+  padding-right: 6px;
 }
 .draw-card .from {
   font-size: 0.88rem;
@@ -1720,7 +1733,7 @@ textarea.input {
   .room-body[data-focus="true"] .draw-card {
     width: min(620px, 100%);
   }
-  .room-body[data-focus="true"] .draw-card .dare-text {
+  .room-body[data-focus="true"] .draw-card .dare-text:not([data-size]) {
     font-size: clamp(1.6rem, 3vw, 2.5rem);
   }
   .room-body[data-focus="true"] .outcomes {
@@ -1779,4 +1792,9 @@ textarea.input {
   stroke-width: 3;
   vector-effect: non-scaling-stroke;
   filter: var(--wave-glow);
+}
+
+.history-item > p {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
 }

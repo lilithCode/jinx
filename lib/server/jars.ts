@@ -320,10 +320,23 @@ export async function stateFor(code: string, dh: string | null) {
 // ---------- slips ----------
 
 function validateDare(body: Record<string, unknown>) {
-  const text = str(body.text, LIMITS.dareMax + 1);
+  // Long dares can have paragraphs (Shift+Enter): keep single/double line breaks, tidy everything else.
+  const raw = typeof body.text === "string" ? body.text : "";
+  const text = raw
+    .split(/\r?\n/)
+    .map((line) => str(line))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
   if (text.length < LIMITS.dareMin) throw new HttpError(400, "Write a dare of at least a few words.");
-  if (text.length > LIMITS.dareMax) throw new HttpError(400, `Keep dares under ${LIMITS.dareMax} characters.`);
   return text;
+}
+
+/** Keeps the whole jar small enough to save in one Redis record; slips themselves have no length limit. */
+function roomFor(jar: JarDoc, text: string, replacing?: Dare) {
+  const used = jar.dares.reduce((n, d) => n + (d === replacing ? 0 : d.text.length), 0);
+  if (used + text.length > LIMITS.jarTextMax)
+    throw new HttpError(409, "This jar is stuffed with words. Shorten this slip or remove an old one.");
 }
 
 export const addDare = (code: string, dh: string | null, body: Record<string, unknown>) =>
@@ -333,6 +346,7 @@ export const addDare = (code: string, dh: string | null, body: Record<string, un
     if (jar.dares.filter((d) => d.authorId === me.id).length >= LIMITS.slipsPerPlayer)
       throw new HttpError(409, `You've written ${LIMITS.slipsPerPlayer} slips, the max per player.`);
     if (jar.dares.length >= LIMITS.slipsPerJar) throw new HttpError(409, "This jar is full to the lid.");
+    roomFor(jar, text);
     jar.dares.push({ id: newId(), authorId: me.id, text, status: "in_jar", timesDrawn: 0, createdAt: Date.now() });
   });
 
@@ -346,7 +360,10 @@ function ownSlipInJar(jar: JarDoc, me: Player, id: unknown) {
 export const editDare = (code: string, dh: string | null, body: Record<string, unknown>) =>
   asMember(code, dh, (jar, me) => {
     requireOpen(jar);
-    ownSlipInJar(jar, me, body.id).text = validateDare(body);
+    const dare = ownSlipInJar(jar, me, body.id);
+    const text = validateDare(body);
+    roomFor(jar, text, dare);
+    dare.text = text;
   });
 
 export const deleteDare = (code: string, dh: string | null, body: Record<string, unknown>) =>

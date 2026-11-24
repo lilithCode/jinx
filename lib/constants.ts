@@ -26,7 +26,7 @@ export const LIMITS = {
   nameMax: 20,
   jarNameMax: 32,
   dareMin: 3,
-  dareMax: 200,
+  jarTextMax: 400_000, // total characters across all slips in one jar (storage safety, not a per-slip limit)
   slipsPerPlayer: 30,
   slipsPerJar: 500,
   minPlayers: 2,

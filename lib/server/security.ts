@@ -83,7 +83,7 @@ export function assertSameOrigin(req: NextRequest) {
 
 export async function readJson(req: NextRequest): Promise<Record<string, unknown>> {
   const len = Number(req.headers.get("content-length") ?? 0);
-  if (len > 8_000) throw new HttpError(413, "That request is too large.");
+  if (len > 64_000) throw new HttpError(413, "That request is too large.");
   try {
     const body = await req.json();
     return body && typeof body === "object" ? body : {};
@@ -92,7 +92,7 @@ export async function readJson(req: NextRequest): Promise<Record<string, unknown
   }
 }
 
-export const str = (v: unknown, max: number) =>
+export const str = (v: unknown, max = Infinity) =>
   typeof v === "string" ? v.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, max) : "";
 
 // ---------- rate limiting (fixed window, shared via Redis) ----------

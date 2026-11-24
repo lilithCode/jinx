@@ -82,7 +82,6 @@ export function SlipsPanel({ state, toast, hidden, setHidden }: SlipsProps) {
             ref={box}
             className="input"
             rows={3}
-            maxLength={LIMITS.dareMax}
             placeholder="Dare someone to… (Enter drops it in)"
             value={text}
             autoComplete="off"

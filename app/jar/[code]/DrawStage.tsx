@@ -18,6 +18,9 @@ type Props = {
   onReact: (emoji: string) => void;
 };
 
+/** Long dares get smaller type so they still fit on the slip. */
+const sizeOf = (t: string) => (t.length > 400 ? "long" : t.length > 140 ? "mid" : undefined);
+
 const CONFETTI = ["#f07a9a", "#b65bc2", "#ffb38a", "#9be3c4", "#ffe08a", "#ffffff"];
 
 export function DrawStage({ state, draw, animate, busy, onResolve, onReact }: Props) {
@@ -81,7 +84,7 @@ export function DrawStage({ state, draw, animate, busy, onResolve, onReact }: Pr
         transition={{ type: "spring", stiffness: 160, damping: 15, delay: play ? 0.15 : 0 }}
         aria-live="polite"
       >
-        <p className="dare-text">{draw.dare.text}</p>
+        <p className="dare-text" data-size={sizeOf(draw.dare.text)}>{draw.dare.text}</p>
         <p className="from">
           {state.jar.anonymous
             ? "Written by: it's a secret 🤫"
